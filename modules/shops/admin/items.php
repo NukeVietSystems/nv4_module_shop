@@ -319,7 +319,8 @@ while (list($id, $listcatid, $mcatid, $admin_id, $homeimgfile, $homeimgthumb, $t
 		if($idsite==0){
 			$catid_i = $listcatid;
 		}else{
-			$catid_i = $mcatid;
+			$lcat_id=explode(',',$mcatid);
+			$catid_i = $lcat_id[0];
 		}
     }
 

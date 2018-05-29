@@ -290,7 +290,6 @@ if (empty($contents)) {
     }elseif($pro_config['home_view'] == 'view_msite_all') {
         // Fetch Limit
         $db->sqlreset()->select('COUNT(*)')->from(TABLE_SHOP_MAIN . '_rows t1')->where('t1.inhome=1 AND t1.status =1 AND idsite in('.$list_idsite.')');
-		echo $db->sql();
         $num_items = $db->query($db->sql())->fetchColumn();
 
         $db->select('id, listcatid, mcatid, publtime, ' . NV_LANG_DATA . '_title, ' . NV_LANG_DATA . '_alias, ' . NV_LANG_DATA . '_hometext, homeimgalt, homeimgfile, homeimgthumb, product_code, product_number, product_price, money_unit, discount_id, showprice,' . NV_LANG_DATA . '_gift_content, gift_from, gift_to, idsite')
@@ -318,7 +317,8 @@ if (empty($contents)) {
 
                 $thumb = NV_BASE_SITEURL . 'themes/' . $module_info['template'] . '/images/' . $module_file . '/no-image.jpg';
             }
-			$listcatids = ($idsite !=0)? $mcatid : $listcatid;
+			$lcat_id=explode(',',$mcatid);
+			$listcatids = ($idsite !=0)? $lcat_id[0] : $listcatid;
             $data_content[] = array(
                 'id' => $id,
                 'listcatid' => $listcatids,

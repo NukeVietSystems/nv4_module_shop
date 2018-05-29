@@ -76,8 +76,9 @@ $data_content['array_custom'] = array();
 $data_content['array_custom_lang'] = array();
 $data_content['template'] = '';
 $idtemplate = 0;
-if($data_content['idsite'] != 0){
-	$data_content['listcatid'] = $data_content['mcatid'];
+if(IDSITE == 0){
+	$lcat_id=explode(',',$data_content['mcatid']);
+	$data_content['listcatid'] = $lcat_id[0];
 }
 if ($global_array_shops_cat[$data_content['listcatid']]['form'] != '') {
     $idtemplate = $db->query('SELECT id FROM ' . TABLE_SHOP_MAIN . '_template where alias = "' . preg_replace("/[\_]/", "-", $global_array_shops_cat[$data_content['listcatid']]['form']) . '"')->fetchColumn();
@@ -126,10 +127,11 @@ if (nv_user_in_groups($global_array_shops_cat[$catid]['groups_view'])) {
         $sql = 'UPDATE ' . TABLE_SHOP_MAIN . '_rows SET hitstotal=hitstotal+1 WHERE id=' . $id;
         $db->query($sql);
     }
-    
-    $catid = $data_content['listcatid'];
+		$lcat_id=explode(',',$data_content['mcatid']);
+		$catid = (IDSITE  ==0)? $lcat_id[0] : $data_content['listcatid'];
+
+	
     $base_url_rewrite = nv_url_rewrite(NV_BASE_SITEURL . 'index.php?' . NV_LANG_VARIABLE . '=' . NV_LANG_DATA . '&amp;' . NV_NAME_VARIABLE . '=' . $module_name . '&amp;' . NV_OP_VARIABLE . '=' . $global_array_shops_cat[$catid]['alias'] . '/' . $data_content[NV_LANG_DATA . '_alias'] . $global_config['rewrite_exturl'], true);
-    
     if ($_SERVER['REQUEST_URI'] != $base_url_rewrite and !$popup) {
         Header('Location: ' . $base_url_rewrite);
         die();
@@ -173,11 +175,23 @@ if (nv_user_in_groups($global_array_shops_cat[$catid]['groups_view'])) {
     $homeimgfile = $data_content['homeimgfile'];
     if ($data_content['homeimgthumb'] == 1) {
         // image thumb
-        $data_content['homeimgthumb'] = NV_BASE_SITEURL . NV_ASSETS_DIR . '/site/' . $global_array_site[$data_content['idsite']]['domain'] . '/' . $module_upload . '/' . $homeimgfile;
-        $data_content['homeimgfile'] = NV_BASE_SITEURL . NV_UPLOADS_DIR . '/' . $module_upload . '/' . $homeimgfile;
+		if(IDSITE==0){
+			$data_content['homeimgthumb'] = NV_BASE_SITEURL . NV_ASSETS_DIR . '/site/' . $global_array_site[$data_content['idsite']]['domain'] . '/' . $module_upload . '/' . $homeimgfile;
+			$data_content['homeimgfile'] = NV_BASE_SITEURL . NV_UPLOADS_DIR . '/' . $module_upload . '/' . $homeimgfile;
+		}else{
+			$data_content['homeimgthumb'] = NV_BASE_SITEURL . NV_FILES_DIR . '/' . $module_upload . '/' . $homeimgfile;
+			$data_content['homeimgfile'] = NV_BASE_SITEURL . NV_UPLOADS_DIR . '/' . $module_upload . '/' . $homeimgfile;
+		}
+        //$data_content['homeimgthumb'] = NV_BASE_SITEURL . NV_ASSETS_DIR . '/site/' . $global_array_site[$data_content['idsite']]['domain'] . '/' . $module_upload . '/' . $homeimgfile;
+        //$data_content['homeimgfile'] = NV_BASE_SITEURL . NV_UPLOADS_DIR . '/' . $module_upload . '/' . $homeimgfile;
     } elseif ($data_content['homeimgthumb'] == 2) {
         // image file
-        $data_content['homeimgthumb'] = $data_content['homeimgfile'] = NV_BASE_SITEURL . NV_UPLOADS_DIR . '/' . $global_array_site[$data_content['idsite']]['domain'] . '/' . $module_upload . '/' . $homeimgfile;
+		if(IDSITE==0){
+			$data_content['homeimgthumb'] = $data_content['homeimgfile'] = NV_BASE_SITEURL . SYSTEM_UPLOADS_DIR . '/' . $global_array_site[$idsite]['domain'] . '/' . $module_upload . '/' . $homeimgfile;
+		}else{
+			$data_content['homeimgthumb'] = $data_content['homeimgfile'] = NV_BASE_SITEURL . NV_UPLOADS_DIR . '/'  . $module_upload . '/' . $homeimgfile;
+		}
+        //$data_content['homeimgthumb'] = $data_content['homeimgfile'] = NV_BASE_SITEURL . NV_UPLOADS_DIR . '/' . $global_array_site[$data_content['idsite']]['domain'] . '/' . $module_upload . '/' . $homeimgfile;
     } elseif ($data_content['homeimgthumb'] == 3) {
         // image url
         $data_content['homeimgthumb'] = $data_content['homeimgfile'] = $homeimgfile;
@@ -201,7 +215,7 @@ if (nv_user_in_groups($global_array_shops_cat[$catid]['groups_view'])) {
     
     // Fetch Limit
     $db->sqlreset()
-        ->select(' id, listcatid, ' . NV_LANG_DATA . '_title, ' . NV_LANG_DATA . '_alias, homeimgfile, homeimgthumb, addtime, publtime, product_code, product_number, product_price, price_config, money_unit, discount_id, showprice, ' . NV_LANG_DATA . '_hometext,' . NV_LANG_DATA . '_gift_content, gift_from, gift_to')
+        ->select(' id, listcatid, mcatid, ' . NV_LANG_DATA . '_title, ' . NV_LANG_DATA . '_alias, homeimgfile, homeimgthumb, addtime, publtime, product_code, product_number, product_price, price_config, money_unit, discount_id, showprice, ' . NV_LANG_DATA . '_hometext,' . NV_LANG_DATA . '_gift_content, gift_from, gift_to, idsite')
         ->from(TABLE_SHOP_MAIN . '_rows')
         ->where('id!=' . $id . ' AND listcatid = ' . $data_content['listcatid'] . ' AND status=1')
         ->order('ID DESC')
@@ -209,8 +223,10 @@ if (nv_user_in_groups($global_array_shops_cat[$catid]['groups_view'])) {
     $result = $db->query($db->sql());
     
     $data_others = array();
-    while (list ($_id, $listcatid, $title, $alias, $homeimgfile, $homeimgthumb, $addtime, $publtime, $product_code, $product_number, $product_price, $price_config, $money_unit, $discount_id, $showprice, $hometext, $gift_content, $gift_from, $gift_to) = $result->fetch(3)) {
-        if ($homeimgthumb == 1) {
+    while (list ($_id, $listcatid, $mcatid, $title, $alias, $homeimgfile, $homeimgthumb, $addtime, $publtime, $product_code, $product_number, $product_price, $price_config, $money_unit, $discount_id, $showprice, $hometext, $gift_content, $gift_from, $gift_to, $idsite) = $result->fetch(3)) {
+        $lcat_id=explode(',',$mcatid);
+			$listcatids = ($idsite !=0)? $lcat_id[0] : $listcatid;
+		if ($homeimgthumb == 1) {
             // image thumb
             $thumb = NV_BASE_SITEURL . NV_FILES_DIR . '/' . $module_upload . '/' . $homeimgfile;
         } elseif ($homeimgthumb == 2) {
@@ -226,7 +242,7 @@ if (nv_user_in_groups($global_array_shops_cat[$catid]['groups_view'])) {
         
         $data_others[] = array(
             'id' => $_id,
-            'listcatid' => $listcatid,
+            'listcatid' => $listcatids,
             'title' => $title,
             'alias' => $alias,
             'publtime' => $publtime,

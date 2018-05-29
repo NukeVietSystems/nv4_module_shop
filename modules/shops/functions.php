@@ -80,7 +80,6 @@ if ($op == 'main') {
         krsort($array_mod_title, SORT_NUMERIC);
     }
 }
-
 // Wishlist
 if (defined('NV_IS_USER') and $pro_config['active_wishlist']) {
     $listid = $db->query('SELECT listid FROM ' . TABLE_SHOP_MAIN . '_wishlist WHERE user_id = ' . $user_info['userid'] . '')->fetchColumn();

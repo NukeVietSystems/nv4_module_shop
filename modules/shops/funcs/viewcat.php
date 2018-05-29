@@ -151,9 +151,9 @@ if (empty($contents)) {
 
             // Fetch Limit
             if ($array_url_group or $ajax) {
-                $db->sqlreset()->select('COUNT(*)')->from($db_config['prefix'] . '_' . $module_data . '_rows t1')->where('t1.listcatid IN (' . implode(',', $array_cat) . ') AND t1.status=1' . $_sql);
+                $db->sqlreset()->select('COUNT(*)')->from($db_config['prefix'] . '_' . $module_data . '_rows t1')->where('t1.listcatid IN (' . implode(',', $array_cat) . ') OR mcatid IN (' . implode(',', $array_cat) . ') AND t1.status=1' . $_sql);
             } else {
-                $db->sqlreset()->select('COUNT(*)')->from($db_config['prefix'] . '_' . $module_data . '_rows t1')->where('t1.listcatid IN (' . implode(',', $array_cat) . ') AND t1.status =1');
+                $db->sqlreset()->select('COUNT(*)')->from($db_config['prefix'] . '_' . $module_data . '_rows t1')->where('t1.listcatid IN (' . implode(',', $array_cat) . ') OR mcatid IN (' . implode(',', $array_cat) . ') AND t1.status =1');
             }
 
             $num_pro = $db->query($db->sql())->fetchColumn();
@@ -234,14 +234,14 @@ if (empty($contents)) {
         }
 
         if ($array_url_group or !empty($array_id_group)) {
-            $db->sqlreset()->select('COUNT(*)')->from($db_config['prefix'] . '_' . $module_data . '_rows t1')->where($where . ' AND t1.status =1' . $_sql);
+            $db->sqlreset()->select('COUNT(*)')->from(TABLE_SHOP_MAIN . '_rows t1')->where($where . ' AND t1.status =1' . $_sql);
         } else {
-            $db->sqlreset()->select('COUNT(*)')->from($db_config['prefix'] . '_' . $module_data . '_rows t1')->where($where . ' AND t1.status =1');
+            $db->sqlreset()->select('COUNT(*)')->from(TABLE_SHOP_MAIN . '_rows t1')->where($where . ' AND t1.status =1');
         }
 
         $num_items = $db->query($db->sql())->fetchColumn();
 
-        $db->select('t1.id, t1.listcatid, t1.publtime, t1.' . NV_LANG_DATA . '_title, t1.' . NV_LANG_DATA . '_alias, t1.' . NV_LANG_DATA . '_hometext, t1.homeimgalt, t1.homeimgfile, t1.homeimgthumb, t1.product_code, t1.product_number, t1.product_price, t1.money_unit, t1.discount_id, t1.showprice, t1.' . NV_LANG_DATA . '_gift_content, t1.gift_from, t1.gift_to, t2.newday, t2.image')->join('INNER JOIN ' . $db_config['prefix'] . '_' . $module_data . '_catalogs t2 ON t2.catid = t1.listcatid')->order($orderby)->limit($per_page)->offset(($page - 1) * $per_page);
+        $db->select('t1.id, t1.listcatid, t1.publtime, t1.' . NV_LANG_DATA . '_title, t1.' . NV_LANG_DATA . '_alias, t1.' . NV_LANG_DATA . '_hometext, t1.homeimgalt, t1.homeimgfile, t1.homeimgthumb, t1.product_code, t1.product_number, t1.product_price, t1.money_unit, t1.discount_id, t1.showprice, t1.' . NV_LANG_DATA . '_gift_content, t1.gift_from, t1.gift_to, t2.newday, t2.image')->join('INNER JOIN ' . TABLE_SHOP_MAIN . '_catalogs t2 ON t2.catid = t1.listcatid')->order($orderby)->limit($per_page)->offset(($page - 1) * $per_page);
         $result = $db->query($db->sql());
 
         $data_content = GetDataIn($result, $catid);

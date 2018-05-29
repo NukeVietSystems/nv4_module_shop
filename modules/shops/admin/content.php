@@ -502,7 +502,7 @@ if ($nv_Request->get_int('save', 'post') == 1) {
 
             $data_insert = array( );
             $data_insert['listcatid'] = $rowcontent['listcatid'];
-            $data_insert['mcatid'] = $rowcontent['mcatid'];
+            $data_insert['mcatid'] = ($rowcontent['listcatid'] == $rowcontent['mcatid']) ? $rowcontent['mcatid'] : $rowcontent['mcatid'] . ',' . $rowcontent['listcatid'];
             $data_insert['product_code'] = $rowcontent['product_code'];
             $data_insert['product_price'] = $rowcontent['product_price'];
             $data_insert['price_config'] = $rowcontent['price_config'];
